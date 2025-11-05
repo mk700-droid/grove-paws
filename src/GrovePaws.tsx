@@ -8,9 +8,39 @@ export default function GrovePaws() {
   // Paste your live Calendly link (e.g., https://calendly.com/yourname/grove-paws)
   // or a Google Appointment Schedule link. If both are provided, Calendly is shown.
   const CALENDLY_URL = ""; // <-- add your Calendly link here
-  const GOOGLE_APPT_URL = ""; // <-- or add your Google Appointment Schedule public link here
+const GOOGLE_APPT_URL = ""; // <-- or add your Google Appointment Schedule public link here
 
-  const [openFAQ, setOpenFAQ] = useState<number | null>(0);
+// Redirect to Contact if no booking links are set, and run dev smoke tests
+useEffect(() => {
+  // (a) Redirect behavior (you chose option C)
+  if (!CALENDLY_URL && !GOOGLE_APPT_URL && typeof window !== "undefined") {
+    const contact = document.getElementById("contact");
+    if (contact) {
+      contact.scrollIntoView({ behavior: "smooth", block: "start" });
+      try { window.history.replaceState(null, "", "#contact"); } catch {}
+    }
+  }
+
+  // (b) DEV TESTS (safe in browser; skipped on SSR)
+  try {
+    console.assert(typeof (GrovePaws as any) === "function", "GrovePaws component should be a function");
+    console.assert(Array.isArray((services as any)) === true, "services should be an array");
+    console.assert((services as any).some((s: any) => s.title?.includes("Standard Walk")), "services should include Standard Walk");
+    console.assert((services as any).every((s: any) => typeof s.price === "string"), "each service price should be a string");
+
+    if (typeof document !== "undefined") {
+      const ids = ["home", "services", "testimonials", "area", "policies", "schedule", "contact"];
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        console.assert(!!el, `section #${id} should exist`);
+      }
+      const navLinks = Array.from(document.querySelectorAll("nav a"));
+      console.assert(navLinks.length >= 4, "nav should have at least 4 links");
+    }
+  } catch { /* ignore in locked-down envs */ }
+}, []);
+
+const [openFAQ, setOpenFAQ] = useState<number | null>(0);
 
   const faqs = [
     {
@@ -281,33 +311,17 @@ export default function GrovePaws() {
       {/* Schedule */}
       <section id="schedule" className="bg-white border-y border-neutral-200">
         <div className="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-start">
-          <div>
-            <h3 className="text-3xl font-black tracking-tight">Schedule a meet & greet or walk</h3>
-            <p className="mt-3 text-neutral-700">Use the live calendar to book a <strong>meet & greet (10–15 min, free)</strong> or a <strong>dog walk/drop-in</strong>. You'll get an instant confirmation email. If the calendar looks empty, text me and I'll open more slots.</p>
-            <ul className="mt-4 text-sm text-neutral-700 space-y-2">
-              <li>• Same-building priority for 700 Grove residents</li>
-              <li>• Auto-reminders via email/text from the booking tool</li>
-              <li>• You can reschedule online up to 12 hours in advance</li>
-            </ul>
-            <p className="mt-5 text-xs text-neutral-500">Owner setup: add your <code>CALENDLY_URL</code> or <code>GOOGLE_APPT_URL</code> at the top of this file. Calendly supports building multiple event types (walks, drop-ins, overnights) with buffers and intake questions.</p>
-          </div>
-          <div className="rounded-3xl border border-neutral-200 overflow-hidden bg-neutral-50">
-            {CALENDLY_URL ? (
-              <iframe title="Calendly" src={`${CALENDLY_URL}?hide_landing_page_details=1&background_color=f9fafb`} className="w-full h-[700px]" frameBorder={0} />
-            ) : GOOGLE_APPT_URL ? (
-              <iframe title="Appointments" src={GOOGLE_APPT_URL} className="w-full h-[700px]" frameBorder={0} />
-            ) : (
-              <div className="p-6 text-sm text-neutral-700">
-                <p className="font-semibold">Calendar not configured yet.</p>
-                <ol className="list-decimal list-inside mt-2 space-y-1">
-                  <li>Create a Calendly event type (30‑min Walk, 60‑min Walk, Meet & Greet).</li>
-                  <li>Copy your public scheduling link and paste it into <code>CALENDLY_URL</code> at the top of this file.</li>
-                  <li>Or use Google Calendar's Appointment Schedules and paste the public link into <code>GOOGLE_APPT_URL</code>.</li>
-                </ol>
-              </div>
-            )}
-          </div>
-        </div>
+         <div className="p-6 text-sm text-neutral-700">
+  <p className="font-semibold">Online booking is coming soon.</p>
+  <p className="mt-1">For now, please use the contact form to request times.</p>
+  <a
+    href="#contact"
+    className="mt-3 inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white font-semibold shadow hover:bg-emerald-700"
+  >
+    Go to Contact
+  </a>
+</div>
+
       </section>
 
       {/* Contact */}
@@ -320,7 +334,7 @@ export default function GrovePaws() {
             </p>
             <ul className="mt-5 text-sm text-neutral-700 space-y-2">
               <li>• Email: <a className="text-emerald-700 underline" href="mailto:grovepaws07310@gmail.com?subject=Dog%20Walking%20Inquiry">grovepaws07310@gmail.com</a></li>
-              <li>• Phone/Text: <a className="text-emerald-700 underline" href="tel:+12010000000">(201) 000‑0000</a></li>
+              <li>• Phone/Text: <a className="text-emerald-700 underline" href="tel:+15513431123">(551) 343‑1123</a></li>
             </ul>
             <p className="mt-5 text-xs text-neutral-500">
               *Replace contact info with your own before publishing. I can also add a scheduling link (Calendly/Google) if you prefer.
@@ -386,7 +400,7 @@ export default function GrovePaws() {
             <h5 className="font-bold">Contact</h5>
             <ul className="mt-2 text-sm text-neutral-700 space-y-1">
               <li>Email: <a className="text-emerald-700 underline" href="mailto:grovepaws07310@gmail.com">grovepaws07310@gmail.com</a></li>
-              <li>Phone/Text: <a className="text-emerald-700 underline" href="tel:+12010000000">(201) 000‑0000</a></li>
+              <li>Phone/Text: <a className="text-emerald-700 underline" href="tel:+15513431123">(551) 343‑1123</a></li>
             </ul>
           </div>
         </div>
